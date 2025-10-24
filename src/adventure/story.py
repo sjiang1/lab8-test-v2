@@ -32,5 +32,6 @@ if __name__ == "__main__":
         if choice == 'exit':
             print("bonus good bye")
             break
-        
+
+        print("try again")
         print(step(choice, events))
