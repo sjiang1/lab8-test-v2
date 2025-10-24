@@ -1,6 +1,6 @@
 name: Lab Reviewer
 
-on: [pull_request_target]
+on: [pull_request]
 
 permissions:
   contents: write
@@ -159,35 +159,6 @@ jobs:
 
             Oh, wait! 😼 There's a new commit in main branch, please update your branch to keep up to date with the main branch.
             <!--SUGGESTION: resolved-->
-
-      - name: checkout up-to-date
-        if: env.TYPE == 'resolved'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: check up-to-date
-        if: env.TYPE == 'resolved'
-        id: check_sync 
-        run: |
-          git fetch origin main
-          BASE=origin/main
-          HEAD=$(git rev-parse HEAD)
-          if git merge-base --is-ancestor $BASE $HEAD; then
-            echo "up_to_date=true" >> $GITHUB_OUTPUT
-          else
-            echo "up_to_date=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: comment about behind
-        if: steps.check_sync.outputs.up_to_date == 'false'
-        uses: mshick/add-pr-comment@v2.8.2
-        with:
-          allow-repeats: true
-          refresh-message-position: true
-          message: |
-            Your branch is still behind the main branch! 😈 please update your branch to keep up to date with the main branch.
 
       - name: think
         if: env.TYPE == 'none'
