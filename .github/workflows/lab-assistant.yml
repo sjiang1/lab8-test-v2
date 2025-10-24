@@ -160,6 +160,16 @@ jobs:
             Oh, wait! 😼 There's a new commit in main branch, please update your branch to keep up to date with the main branch.
             <!--SUGGESTION: resolved-->
 
+      - name: end of Lab
+        if: env.TYPE == 'resolved'
+        uses: mshick/add-pr-comment@v2.8.2
+        with:
+          allow-repeats: true
+          refresh-message-position: true
+          message: |
+            Everything seems all right now! Your branch is up to date with the main. I'll approve the PR (pull request) right now.
+            <!--SUGGESTION: resolved-->
+
       - name: think
         if: env.TYPE == 'none'
         id: choose
@@ -195,3 +205,33 @@ jobs:
             ${{ env.COMMENT == 'bold' && 'Great work! But I would like to see "Which direction do you choose?" in bold, can you adjust your code to do that?' || 'Great work! But I would like to see a goodbye message after user enters `exit`, can you adjust your code to do that?' }}
             ${{ env.COMMENT == 'BOLD' && '<!--SUGGESTION: bold-->' || '<!--SUGGESTION: exit-->' }}
           
+  auto_merge:
+    needs: [suggestion]
+    if: needs.suggestion.outputs.TYPE == 'resolved'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Approve Pull Request
+        uses: peter-evans/create-pull-request@v6
+        if: github.event_name == 'pull_request_target'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Auto-approve by GitHub Action"
+        continue-on-error: true
+
+      - name: Approve via API
+        run: |
+          gh pr review ${{ github.event.pull_request.number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge Pull Request
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch --admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Confirm Merge
+        run: echo "✅ Pull request approved, merged, and branch deleted."
