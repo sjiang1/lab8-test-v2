@@ -73,7 +73,7 @@ jobs:
     if: needs.test.outputs.story_passed == 'true'
     runs-on: ubuntu-latest
     outputs:
-      approve: ${{ steps.approve.outputs.approve }}
+      approve: ${{ steps.find_suggestion.outputs.approve }}
     steps:
       - name: suggestion?
         uses: peter-evans/find-comment@v4
