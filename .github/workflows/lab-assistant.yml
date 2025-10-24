@@ -226,18 +226,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: approve
-        run: |
-          echo "✅ Approving PR #${{ github.event.pull_request.number }}"
-          gh pr review ${{ github.event.pull_request.number }} --approve
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Approve Pull Request
+        uses: juliangruber/approve-pull-request-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ github.event.pull_request.number }}
 
       - name: merge
-        run: |
-          gh pr merge ${{ github.event.pull_request.number }} --merge --admin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: juliangruber/merge-pull-request-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ github.event.pull_request.number }}
+          method: squash
 
       - name: confirm merge
         run: echo "✅ Pull request approved, merged, and branch deleted."
