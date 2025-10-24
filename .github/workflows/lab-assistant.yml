@@ -220,7 +220,6 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      steps:
       - name: bot reviewer checkout
         uses: actions/checkout@v4
         with:
