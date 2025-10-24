@@ -73,7 +73,7 @@ jobs:
     if: needs.test.outputs.story_passed == 'true'
     runs-on: ubuntu-latest
     outputs:
-      approve: ${{ steps.find_suggestion.outputs.approve }}
+      approve: ${{ steps.find_comment.outputs.approve }}
     steps:
       - name: suggestion?
         uses: peter-evans/find-comment@v4
@@ -82,7 +82,9 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: "<!--SUGGESTION:"
           direction: last
-      - run: |
+      - name: find comment
+        id: find_comment
+        run: |
           if echo "${{ steps.find_suggestion.outputs.comment-body }}" | grep -q "<!--SUGGESTION: resolved-->"; then
             echo "TYPE=resolved" >> $GITHUB_ENV
             echo "approve=success" >> "$GITHUB_OUTPUT"
