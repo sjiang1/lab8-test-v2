@@ -72,6 +72,8 @@ jobs:
     needs: test
     if: needs.test.outputs.story_passed == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      approve: ${{ steps.approve.outputs.approve }}
     steps:
       - name: suggestion?
         uses: peter-evans/find-comment@v4
@@ -83,12 +85,16 @@ jobs:
       - run: |
           if echo "${{ steps.find_suggestion.outputs.comment-body }}" | grep -q "<!--SUGGESTION: resolved-->"; then
             echo "TYPE=resolved" >> $GITHUB_ENV
+            echo "approve=success" >> "$GITHUB_OUTPUT"
           elif echo "${{ steps.find_suggestion.outputs.comment-body }}" | grep -q "<!--SUGGESTION: bold-->"; then
             echo "TYPE=bold" >> $GITHUB_ENV
+            echo "approve=failed" >> "$GITHUB_OUTPUT"
           elif echo "${{ steps.find_suggestion.outputs.comment-body }}" | grep -q "<!--SUGGESTION: exit-->"; then
             echo "TYPE=exit" >> $GITHUB_ENV
+            echo "approve=failed" >> "$GITHUB_OUTPUT"
           else
             echo "TYPE=none" >> $GITHUB_ENV
+            echo "approve=failed" >> "$GITHUB_OUTPUT"
           fi
 
       - name: follow-up check bold
@@ -168,7 +174,6 @@ jobs:
           refresh-message-position: true
           message: |
             Everything seems all right now! Your branch is up to date with the main. I'll approve the PR (pull request) right now.
-            <!--SUGGESTION: resolved-->
 
       - name: think
         if: env.TYPE == 'none'
@@ -207,7 +212,7 @@ jobs:
           
   auto_merge:
     needs: [suggestion]
-    if: needs.suggestion.outputs.TYPE == 'resolved'
+    if: needs.suggestion.outputs.approve == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
