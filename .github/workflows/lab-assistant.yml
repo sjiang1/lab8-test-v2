@@ -177,6 +177,8 @@ jobs:
           message: |
             Everything seems all right now! Your branch is up to date with the main. I'll approve the PR (pull request) right now.
 
+            Once it's merged, delete the branch! 👇👇👇
+
       - name: think
         if: env.TYPE == 'none'
         id: choose
@@ -240,4 +242,4 @@ jobs:
           method: squash
 
       - name: confirm merge
-        run: echo "✅ Pull request approved, merged, and branch deleted."
+        run: echo "✅ Pull request approved and merged"
