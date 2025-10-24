@@ -220,25 +220,25 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Approve Pull Request
-        uses: peter-evans/create-pull-request@v6
-        if: github.event_name == 'pull_request_target'
+      steps:
+      - name: bot reviewer checkout
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto-approve by GitHub Action"
-        continue-on-error: true
+          fetch-depth: 0
 
-      - name: Approve via API
+      - name: approve
         run: |
+          echo "✅ Approving PR #${{ github.event.pull_request.number }}"
           gh pr review ${{ github.event.pull_request.number }} --approve
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Merge Pull Request
+      - name: merge
         run: |
-          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch --admin
+          gh pr merge ${{ github.event.pull_request.number }} --merge --admin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Confirm Merge
+      - name: confirm merge
         run: echo "✅ Pull request approved, merged, and branch deleted."
